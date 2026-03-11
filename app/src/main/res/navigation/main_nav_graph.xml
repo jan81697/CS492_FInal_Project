@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/home">
+
+    <fragment
+        android:id="@+id/home"
+        android:label="Spotify Stats"
+        android:name="com.example.app.ui.HomeFragment">
+        <action
+            android:id="@+id/navigate_to_mood_results"
+            app:destination="@id/mood_results" />
+        <action
+            android:id="@+id/navigate_to_artist_search"
+            app:destination="@id/artist_search" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/mood_results"
+        android:label="Top Songs"
+        android:name="com.example.app.ui.MoodResultsFragment">
+        <argument
+            android:name="mood"
+            app:argType="string" />
+        <argument
+            android:name="genres"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/artist_search"
+        android:label="Artist Search"
+        android:name="com.example.app.ui.ArtistSearchFragment" />
+
+</navigation>
