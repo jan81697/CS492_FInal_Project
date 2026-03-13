@@ -1,12 +1,17 @@
-// FILE LOCATION: app/src/main/java/com/example/app/ui/ArtistSearchViewModel.kt
 package com.example.app.ui
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.app.data.AppDatabase
 import com.example.app.data.Artist
+import kotlinx.coroutines.launch
 
-class ArtistSearchViewModel : ViewModel() {
+class ArtistSearchViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val artistDao = AppDatabase.getDatabase(application).artistDao()
 
     private val _artists = MutableLiveData<List<Artist>>(emptyList())
     val artists: LiveData<List<Artist>> = _artists
@@ -41,5 +46,13 @@ class ArtistSearchViewModel : ViewModel() {
         // --- END STUB ---
 
         _loading.value = false
+    }
+
+    fun saveArtist(artist: Artist) {
+        viewModelScope.launch {
+            // Update timestamp to current time for sorting
+            val artistWithCurrentTimestamp = artist.copy(timestamp = System.currentTimeMillis())
+            artistDao.insertArtist(artistWithCurrentTimestamp)
+        }
     }
 }

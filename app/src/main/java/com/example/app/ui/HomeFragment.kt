@@ -1,17 +1,43 @@
-// FILE LOCATION: app/src/main/java/com/example/app/ui/HomeFragment.kt
 package com.example.app.ui
 
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.app.R
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
+    private val viewModel: HomeViewModel by viewModels()
+    private val recentArtistsAdapter = ArtistAdapter { artist ->
+        // When a recent artist is clicked, we could navigate to artist details/perform artist search
+        // For now, let's just navigate to the search screen with this artist (or treat as a click)
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        val rvRecent = view.findViewById<RecyclerView>(R.id.rv_recent_artists)
+        val tvLabel = view.findViewById<TextView>(R.id.tv_recent_searches_label)
+
+        rvRecent.layoutManager = LinearLayoutManager(requireContext())
+        rvRecent.adapter = recentArtistsAdapter
+
+        viewModel.recentArtists.observe(viewLifecycleOwner) { artists ->
+            if (artists.isNullOrEmpty()) {
+                rvRecent.visibility = View.GONE
+                tvLabel.visibility = View.GONE
+            } else {
+                rvRecent.visibility = View.VISIBLE
+                tvLabel.visibility = View.VISIBLE
+                recentArtistsAdapter.updateArtists(artists)
+            }
+        }
 
         view.findViewById<Button>(R.id.btn_happy).setOnClickListener {
             val directions = HomeFragmentDirections.navigateToMoodResults(
