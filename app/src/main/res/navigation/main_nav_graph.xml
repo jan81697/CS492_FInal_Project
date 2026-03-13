@@ -15,6 +15,9 @@
         <action
             android:id="@+id/navigate_to_artist_search"
             app:destination="@id/artist_search" />
+        <action
+            android:id="@+id/navigate_to_artist_detail"
+            app:destination="@id/artist_detail" />
     </fragment>
 
     <fragment
@@ -32,6 +35,19 @@
     <fragment
         android:id="@+id/artist_search"
         android:label="Artist Search"
-        android:name="com.example.app.ui.ArtistSearchFragment" />
+        android:name="com.example.app.ui.ArtistSearchFragment">
+        <action
+            android:id="@+id/navigate_to_artist_detail"
+            app:destination="@id/artist_detail" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/artist_detail"
+        android:label="Artist Details"
+        android:name="com.example.app.ui.ArtistDetailFragment">
+        <argument
+            android:name="artist"
+            app:argType="com.example.app.data.Artist" />
+    </fragment>
 
 </navigation>
