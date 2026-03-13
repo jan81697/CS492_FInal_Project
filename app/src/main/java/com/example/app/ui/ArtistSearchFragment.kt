@@ -16,7 +16,8 @@ class ArtistSearchFragment : Fragment(R.layout.fragment_artist_search) {
     private val viewModel: ArtistSearchViewModel by viewModels()
     private val artistAdapter = ArtistAdapter { artist ->
         viewModel.saveArtist(artist)
-        // TODO: navigate to artist detail screen when implemented
+        val directions = ArtistSearchFragmentDirections.navigateToArtistDetail(artist)
+        findNavController().navigate(directions)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

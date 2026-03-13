@@ -15,8 +15,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private val viewModel: HomeViewModel by viewModels()
     private val recentArtistsAdapter = ArtistAdapter { artist ->
-        // When a recent artist is clicked, we could navigate to artist details/perform artist search
-        // For now, let's just navigate to the search screen with this artist (or treat as a click)
+        viewModel.updateArtistTimestamp(artist)
+        val directions = HomeFragmentDirections.navigateToArtistDetail(artist)
+        findNavController().navigate(directions)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
