@@ -1,4 +1,3 @@
-// FILE LOCATION: app/src/main/java/com/example/app/ui/ArtistSearchFragment.kt
 package com.example.app.ui
 
 import android.os.Bundle
@@ -16,7 +15,9 @@ import com.example.app.R
 class ArtistSearchFragment : Fragment(R.layout.fragment_artist_search) {
     private val viewModel: ArtistSearchViewModel by viewModels()
     private val artistAdapter = ArtistAdapter { artist ->
-        // TODO: handle artist click — navigate to artist detail screen
+        viewModel.saveArtist(artist)
+        val directions = ArtistSearchFragmentDirections.navigateToArtistDetail(artist)
+        findNavController().navigate(directions)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
