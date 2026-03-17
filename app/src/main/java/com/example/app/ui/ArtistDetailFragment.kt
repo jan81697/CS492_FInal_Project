@@ -37,11 +37,11 @@ class ArtistDetailFragment : Fragment(R.layout.fragment_artist_detail) {
         rvTracks.adapter = songAdapter
 
         // Initial UI
-        updateProfileUI(initialArtist.name, initialArtist.popularity, initialArtist.followers, initialArtist.imageUrl)
+        updateProfileUI(initialArtist.name, initialArtist.imageUrl)
 
         viewModel.artistDetails.observe(viewLifecycleOwner) { fullArtist ->
             if (fullArtist != null) {
-                updateProfileUI(fullArtist.name, fullArtist.popularity, fullArtist.followers, fullArtist.imageUrl)
+                updateProfileUI(fullArtist.name, fullArtist.imageUrl)
                 
                 // Setup "Open in Spotify" button
                 view.findViewById<Button>(R.id.btn_open_spotify).setOnClickListener {
@@ -63,14 +63,9 @@ class ArtistDetailFragment : Fragment(R.layout.fragment_artist_detail) {
         }
     }
 
-    private fun updateProfileUI(name: String, popularity: Int, followers: Int, imageUrl: String?) {
-        val popText = if (popularity < 0) "N/A" else popularity.toString()
-        val followersText = if (followers < 0) "N/A" else String.format("%,d", followers)
-
+    private fun updateProfileUI(name: String, imageUrl: String?) {
         view?.findViewById<TextView>(R.id.tv_artist_name)?.text = name
-        view?.findViewById<TextView>(R.id.tv_artist_popularity)?.text = "Popularity: $popText"
-        view?.findViewById<TextView>(R.id.tv_artist_followers)?.text = "Followers: $followersText"
-        
+
         val imageView = view?.findViewById<ImageView>(R.id.iv_artist_image)
         imageView?.load(imageUrl) {
             crossfade(true)

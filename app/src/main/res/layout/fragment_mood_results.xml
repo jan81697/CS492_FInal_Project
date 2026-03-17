@@ -47,7 +47,6 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Each Song will have stats from the API in view model"
                 android:textSize="13sp"
                 android:gravity="center"
                 android:textColor="@android:color/darker_gray"
@@ -56,14 +55,5 @@
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
-
-    <Button
-        android:id="@+id/btn_back_home"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back to Home"
-        android:backgroundTint="@color/green_primary"
-        android:textColor="@android:color/black"
-        style="@style/Widget.MaterialComponents.Button" />
 
 </LinearLayout>

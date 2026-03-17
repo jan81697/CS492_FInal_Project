@@ -16,9 +16,6 @@ class SpotifyAuthActivity : AppCompatActivity() {
         val intent = intent
         val response = AuthorizationClient.getResponse(RESULT_OK, intent)
         
-        // You can handle the response here or pass it back to HomeFragment
-        // For now, we'll just finish and let the calling fragment handle the result
-        // if you use startActivityForResult
         finish()
     }
 }

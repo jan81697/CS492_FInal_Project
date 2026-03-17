@@ -2,7 +2,6 @@ package com.example.app.ui
 
 import android.os.Bundle
 import android.view.View
-import android.widget.Button
 import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -55,10 +54,6 @@ class ArtistSearchFragment : Fragment(R.layout.fragment_artist_search) {
             } else {
                 Toast.makeText(requireContext(), "Auth Token missing. Try logging in again.", Toast.LENGTH_SHORT).show()
             }
-        }
-
-        view.findViewById<Button>(R.id.btn_back_home).setOnClickListener {
-            findNavController().popBackStack()
         }
     }
 }
