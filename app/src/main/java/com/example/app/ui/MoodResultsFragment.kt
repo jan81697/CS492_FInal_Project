@@ -18,9 +18,10 @@ class MoodResultsFragment : Fragment(R.layout.fragment_mood_results) {
     private val viewModel: MoodResultsViewModel by viewModels()
     private val homeViewModel: HomeViewModel by activityViewModels()
     private val args: MoodResultsFragmentArgs by navArgs()
+    private lateinit var previewPlayer: PreviewPlayer
     
     private val songAdapter = SongAdapter { song ->
-        // TODO: handle song click
+        previewPlayer.playPreview(song)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -28,6 +29,8 @@ class MoodResultsFragment : Fragment(R.layout.fragment_mood_results) {
 
         view.findViewById<TextView>(R.id.tv_mood_title).text =
             "Top Songs for ${args.mood}"
+
+        previewPlayer = PreviewPlayer(requireActivity())
 
         val rv = view.findViewById<RecyclerView>(R.id.rv_songs)
         rv.layoutManager = LinearLayoutManager(requireContext())
@@ -52,5 +55,19 @@ class MoodResultsFragment : Fragment(R.layout.fragment_mood_results) {
         view.findViewById<Button>(R.id.btn_back_home).setOnClickListener {
             findNavController().popBackStack()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (::previewPlayer.isInitialized) {
+            previewPlayer.pause()
+        }
+    }
+
+    override fun onDestroyView() {
+        if (::previewPlayer.isInitialized) {
+            previewPlayer.release()
+        }
+        super.onDestroyView()
     }
 }

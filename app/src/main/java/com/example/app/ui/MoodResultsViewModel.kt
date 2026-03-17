@@ -49,18 +49,21 @@ class MoodResultsViewModel(application: Application) : AndroidViewModel(applicat
                         authHeader = authHeader,
                         query = query,
                         type = "track",
-                        limit = 10 // Explicitly set to 10 to satisfy the API restriction
+                        limit = 10
                     )
                 }
 
-                val songsList = response.tracks?.items?.map { spotifyTrack ->
-                    Song(
-                        id = spotifyTrack.id,
-                        title = spotifyTrack.name,
-                        artist = spotifyTrack.artists.firstOrNull()?.name ?: "Unknown Artist",
-                        popularity = 0
-                    )
-                } ?: emptyList()
+                val songsList = response.tracks?.items
+                    ?.map { spotifyTrack ->
+                        Song(
+                            id = spotifyTrack.id,
+                            title = spotifyTrack.name,
+                            artist = spotifyTrack.artists.firstOrNull()?.name ?: "Unknown Artist",
+                            popularity = spotifyTrack.popularity ?: 0,
+                            previewUrl = spotifyTrack.previewUrl
+                        )
+                    }
+                    ?: emptyList()
                 
                 _songs.value = songsList
                 

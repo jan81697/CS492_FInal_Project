@@ -1,5 +1,7 @@
 package com.example.app.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -12,9 +14,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.app.R
 import com.example.app.data.SpotifyConfig
-import com.spotify.sdk.android.auth.AuthorizationClient
-import com.spotify.sdk.android.auth.AuthorizationRequest
-import com.spotify.sdk.android.auth.AuthorizationResponse
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -63,18 +62,19 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         btnLogin.setOnClickListener {
             Log.d("SpotifyAuth", "Login button clicked")
             val codeChallenge = viewModel.prepareForAuth()
-            
-            val builder = AuthorizationRequest.Builder(
-                SpotifyConfig.CLIENT_ID,
-                AuthorizationResponse.Type.CODE, 
-                SpotifyConfig.REDIRECT_URI
-            )
-            builder.setScopes(SpotifyConfig.SCOPES)
-            builder.setCustomParam("code_challenge_method", "S256")
-            builder.setCustomParam("code_challenge", codeChallenge)
-            
-            val request = builder.build()
-            AuthorizationClient.openLoginActivity(requireActivity(), SpotifyConfig.REQUEST_CODE, request)
+
+            val authUri = Uri.parse("https://accounts.spotify.com/authorize")
+                .buildUpon()
+                .appendQueryParameter("client_id", SpotifyConfig.CLIENT_ID)
+                .appendQueryParameter("response_type", "code")
+                .appendQueryParameter("redirect_uri", SpotifyConfig.REDIRECT_URI)
+                .appendQueryParameter("show_dialog", "false")
+                .appendQueryParameter("scope", SpotifyConfig.SCOPES.joinToString(" "))
+                .appendQueryParameter("code_challenge_method", "S256")
+                .appendQueryParameter("code_challenge", codeChallenge)
+                .build()
+
+            startActivity(Intent(Intent.ACTION_VIEW, authUri))
         }
 
         // Using OFFICIAL Spotify Genre Seeds to prevent 404/400 errors
