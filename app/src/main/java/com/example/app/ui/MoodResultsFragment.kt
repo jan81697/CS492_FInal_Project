@@ -1,11 +1,12 @@
-// FILE LOCATION: app/src/main/java/com/example/app/ui/MoodResultsFragment.kt
 package com.example.app.ui
 
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,9 +16,11 @@ import com.example.app.R
 
 class MoodResultsFragment : Fragment(R.layout.fragment_mood_results) {
     private val viewModel: MoodResultsViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by activityViewModels()
     private val args: MoodResultsFragmentArgs by navArgs()
+    
     private val songAdapter = SongAdapter { song ->
-        // TODO: handle song click — navigate to song detail screen
+        // TODO: handle song click
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -34,11 +37,20 @@ class MoodResultsFragment : Fragment(R.layout.fragment_mood_results) {
         viewModel.songs.observe(viewLifecycleOwner) { songs ->
             songAdapter.updateSongs(songs)
         }
+        
+        viewModel.error.observe(viewLifecycleOwner) { error ->
+            if (error != null) {
+                Toast.makeText(requireContext(), error, Toast.LENGTH_SHORT).show()
+            }
+        }
 
-        viewModel.loadSongsForMood(args.mood, args.genres)
+        // Fetch recommendations using the stored access token
+        homeViewModel.accessToken.observe(viewLifecycleOwner) { token ->
+            viewModel.loadSongsForMood(args.mood, args.genres, token)
+        }
 
         view.findViewById<Button>(R.id.btn_back_home).setOnClickListener {
-            findNavController().navigate(R.id.home)
+            findNavController().popBackStack()
         }
     }
 }

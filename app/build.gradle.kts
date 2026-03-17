@@ -19,6 +19,11 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // These manifestPlaceholders are required by the Spotify Auth SDK
+        manifestPlaceholders["redirectSchemeName"] = "spotifystats"
+        manifestPlaceholders["redirectHostName"] = "callback"
+        manifestPlaceholders["redirectPathPattern"] = ""
     }
 
     buildTypes {
@@ -76,4 +81,14 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // Spotify & Networking
+    implementation(libs.spotify.auth)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
+
+    // Image Loading
+    implementation(libs.coil.kt)
 }

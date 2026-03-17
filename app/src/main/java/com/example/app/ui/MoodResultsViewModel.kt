@@ -1,12 +1,18 @@
-// FILE LOCATION: app/src/main/java/com/example/app/ui/MoodResultsViewModel.kt
 package com.example.app.ui
 
+import android.app.Application
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.app.data.Song
+import com.example.app.data.SpotifyClient
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class MoodResultsViewModel : ViewModel() {
+class MoodResultsViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _songs = MutableLiveData<List<Song>>(emptyList())
     val songs: LiveData<List<Song>> = _songs
@@ -17,26 +23,61 @@ class MoodResultsViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
-    /**
-     * Loads top songs for the given mood and genres.
-     * Replace the stub block below with a real Spotify API call when ready.
-     *
-     * @param mood    Display name e.g. "Happy"
-     * @param genres  Comma-separated Spotify genre seeds e.g. "pop,dance,happy"
-     */
-    fun loadSongsForMood(mood: String, genres: String) {
+    fun loadSongsForMood(mood: String, genres: String, accessToken: String?) {
+        if (accessToken.isNullOrBlank()) {
+            _error.value = "Not logged in"
+            return
+        }
+
         _loading.value = true
+        _error.value = null
 
-        // --- STUB DATA — replace with real Spotify recommendations API call ---
-        _songs.value = listOf(
-            Song("1", "Song 1 - $mood", "Artist A", 95),
-            Song("2", "Song 2 - $mood", "Artist B", 90),
-            Song("3", "Song 3 - $mood", "Artist C", 85),
-            Song("4", "Song 4 - $mood", "Artist D", 80),
-            Song("5", "Song 5 - $mood", "Artist E", 75)
-        )
-        // --- END STUB ---
+        viewModelScope.launch {
+            try {
+                val service = SpotifyClient.service
+                
+                // Clean the access token to ensure no leading/trailing whitespace
+                val cleanToken = accessToken.trim()
+                val authHeader = "Bearer $cleanToken"
+                
+                // Simpler search query to test
+                val query = "genre:$genres"
+                Log.d("SpotifyAPI", "Requesting: $query with token length: ${cleanToken.length}")
+                
+                val response = withContext(Dispatchers.IO) {
+                    service.search(
+                        authHeader = authHeader,
+                        query = query,
+                        type = "track",
+                        limit = 10 // Explicitly set to 10 to satisfy the API restriction
+                    )
+                }
 
-        _loading.value = false
+                val songsList = response.tracks?.items?.map { spotifyTrack ->
+                    Song(
+                        id = spotifyTrack.id,
+                        title = spotifyTrack.name,
+                        artist = spotifyTrack.artists.firstOrNull()?.name ?: "Unknown Artist",
+                        popularity = 0
+                    )
+                } ?: emptyList()
+                
+                _songs.value = songsList
+                
+                if (songsList.isEmpty()) {
+                    _error.value = "No results found."
+                }
+                
+            } catch (e: retrofit2.HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                Log.e("SpotifyAPI", "HTTP Error ${e.code()}: $errorBody")
+                _error.value = "Spotify Error ${e.code()}: Check Logcat"
+            } catch (e: Exception) {
+                Log.e("SpotifyAPI", "Connection Error", e)
+                _error.value = "Network Error: ${e.message}"
+            } finally {
+                _loading.value = false
+            }
+        }
     }
 }

@@ -1,13 +1,17 @@
 package com.example.app.ui
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.app.data.AppDatabase
 import com.example.app.data.Artist
+import com.example.app.data.SpotifyClient
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ArtistSearchViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -22,35 +26,66 @@ class ArtistSearchViewModel(application: Application) : AndroidViewModel(applica
     private val _error = MutableLiveData<String?>(null)
     val error: LiveData<String?> = _error
 
-    // Stub data — replace with real Spotify /search?type=artist API call
-    private val stubArtists = listOf(
-        Artist("1", "Kendrick Lamar", 98, 25000000),
-        Artist("2", "Kendrick Lamar Jr.", 70, 500000),
-        Artist("3", "Taylor Swift", 100, 90000000),
-        Artist("4", "Drake", 97, 80000000),
-        Artist("5", "Billie Eilish", 95, 60000000),
-        Artist("6", "The Weeknd", 96, 75000000)
-    )
-
-    fun searchArtists(query: String) {
+    /**
+     * Searches for artists using the real Spotify Search API via the unified SpotifyClient.
+     */
+    fun searchArtists(query: String, accessToken: String?) {
         if (query.isBlank()) {
             _artists.value = emptyList()
             return
         }
-        _loading.value = true
-
-        // --- STUB DATA — replace with real Spotify search API call ---
-        _artists.value = stubArtists.filter {
-            it.name.contains(query, ignoreCase = true)
+        
+        if (accessToken == null) {
+            _error.value = "Not logged in"
+            return
         }
-        // --- END STUB ---
 
-        _loading.value = false
+        _loading.value = true
+        _error.value = null
+
+        viewModelScope.launch {
+            try {
+                val service = SpotifyClient.service
+                
+                val response = withContext(Dispatchers.IO) {
+                    service.search(
+                        authHeader = "Bearer $accessToken",
+                        query = query,
+                        type = "artist",
+                        limit = 10 
+                    )
+                }
+
+                val artistList = response.artists?.items?.map { spotifyArtist ->
+                    Artist(
+                        id = spotifyArtist.id,
+                        name = spotifyArtist.name,
+                        popularity = spotifyArtist.popularity ?: 0,
+                        followers = spotifyArtist.followers?.total ?: 0
+                    )
+                } ?: emptyList()
+                
+                _artists.value = artistList
+                
+                if (artistList.isEmpty()) {
+                    Log.d("SpotifyAPI", "No artists found for query: $query")
+                }
+                
+            } catch (e: retrofit2.HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                Log.e("SpotifyAPI", "Search HTTP Error ${e.code()}: $errorBody")
+                _error.value = "Search Error: ${e.code()}"
+            } catch (e: Exception) {
+                Log.e("SpotifyAPI", "Search Connection Error", e)
+                _error.value = "Failed to search: ${e.message}"
+            } finally {
+                _loading.value = false
+            }
+        }
     }
 
     fun saveArtist(artist: Artist) {
         viewModelScope.launch {
-            // Update timestamp to current time for sorting
             val artistWithCurrentTimestamp = artist.copy(timestamp = System.currentTimeMillis())
             artistDao.insertArtist(artistWithCurrentTimestamp)
         }

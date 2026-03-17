@@ -12,13 +12,50 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Title card -->
+        <!-- Login Section -->
         <androidx.cardview.widget.CardView
+            android:id="@+id/cv_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="24dp"
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="24dp"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/tv_login_status"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Not logged into Spotify"
+                    android:textSize="16sp"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btn_login"
+                    android:layout_width="200dp"
+                    android:layout_height="wrap_content"
+                    android:text="Login with Spotify"
+                    android:backgroundTint="@color/green_primary"
+                    android:textColor="@android:color/black"
+                    style="@style/Widget.MaterialComponents.Button" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Main Content (Stats & Search) -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cv_main_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            android:visibility="gone">
 
             <LinearLayout
                 android:layout_width="match_parent"

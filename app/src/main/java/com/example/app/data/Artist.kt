@@ -11,5 +11,8 @@ data class Artist(
     val name: String,
     val popularity: Int,
     val followers: Int,
+    val imageUrl: String? = null,
+    val spotifyUri: String? = null,
+    val externalUrl: String? = null,
     val timestamp: Long = System.currentTimeMillis()
 ) : Serializable
