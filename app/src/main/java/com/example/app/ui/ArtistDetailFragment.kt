@@ -1,17 +1,12 @@
 package com.example.app.ui
 
-import android.app.SearchManager
 import android.content.Intent
-import android.media.AudioAttributes
-import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
@@ -25,17 +20,17 @@ class ArtistDetailFragment : Fragment(R.layout.fragment_artist_detail) {
     private val args: ArtistDetailFragmentArgs by navArgs()
     private val viewModel: ArtistDetailViewModel by viewModels()
     private val homeViewModel: HomeViewModel by activityViewModels()
-    
-    private var mediaPlayer: MediaPlayer? = null
+    private lateinit var previewPlayer: PreviewPlayer
 
     private val songAdapter = SongAdapter { song ->
-        playPreview(song.previewUrl)
+        previewPlayer.playPreview(song)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val initialArtist = args.artist
+        previewPlayer = PreviewPlayer(requireActivity())
         
         val rvTracks = view.findViewById<RecyclerView>(R.id.rv_top_tracks)
         rvTracks.layoutManager = LinearLayoutManager(requireContext())
@@ -68,32 +63,6 @@ class ArtistDetailFragment : Fragment(R.layout.fragment_artist_detail) {
         }
     }
 
-    private fun playPreview(url: String?) {
-        if (url.isNullOrBlank()) {
-            Toast.makeText(requireContext(), "No preview available for this track", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        try {
-            mediaPlayer?.stop()
-            mediaPlayer?.release()
-            mediaPlayer = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
-                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                        .setUsage(AudioAttributes.USAGE_MEDIA)
-                        .build()
-                )
-                setDataSource(url)
-                prepareAsync()
-                setOnPreparedListener { start() }
-            }
-            Toast.makeText(requireContext(), "Playing 30s preview...", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Log.e("AudioPlayer", "Error playing preview", e)
-        }
-    }
-
     private fun updateProfileUI(name: String, popularity: Int, followers: Int, imageUrl: String?) {
         val popText = if (popularity < 0) "N/A" else popularity.toString()
         val followersText = if (followers < 0) "N/A" else String.format("%,d", followers)
@@ -112,7 +81,15 @@ class ArtistDetailFragment : Fragment(R.layout.fragment_artist_detail) {
 
     override fun onStop() {
         super.onStop()
-        mediaPlayer?.release()
-        mediaPlayer = null
+        if (::previewPlayer.isInitialized) {
+            previewPlayer.pause()
+        }
+    }
+
+    override fun onDestroyView() {
+        if (::previewPlayer.isInitialized) {
+            previewPlayer.release()
+        }
+        super.onDestroyView()
     }
 }

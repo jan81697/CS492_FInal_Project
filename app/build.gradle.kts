@@ -91,4 +91,7 @@ dependencies {
 
     // Image Loading
     implementation(libs.coil.kt)
+
+    // Spotify App Remote playback
+    implementation(files("libs/spotify-app-remote-release-0.8.0.aar"))
 }

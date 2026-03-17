@@ -57,9 +57,11 @@ class ArtistDetailViewModel(application: Application) : AndroidViewModel(applica
                     service.search(auth, "artist:\"$artistName\"", "track", 10)
                 }
                 
-                val tracks = trackSearch.tracks?.items?.map { 
-                    Song(it.id, it.name, artistName, it.popularity ?: 0, it.previewUrl)
-                } ?: emptyList()
+                val tracks = trackSearch.tracks?.items
+                    ?.map {
+                        Song(it.id, it.name, artistName, it.popularity ?: 0, it.previewUrl)
+                    }
+                    ?: emptyList()
                 
                 _topTracks.postValue(tracks)
                 
